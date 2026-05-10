@@ -80,9 +80,12 @@ class JubeatFactory(Factory):
                 return JubeatQubell(data, config, model)
             if model.version >= 2017062600 and model.version < 2018090500:
                 return JubeatClan(data, config, model)
-            if model.version >= 2018090500 and model.version < 2022080300:
+            # Festo's final data update is 2022-08-03 (build 2022080301).
+            # Ave. didn't launch until October 2022. Original cutoff misclassified
+            # the last festo build as Ave., breaking shopinfo/regist and the rest.
+            if model.version >= 2018090500 and model.version < 2022100400:
                 return JubeatFesto(data, config, model)
-            if model.version >= 2022080300:
+            if model.version >= 2022100400:
                 return JubeatAvenue(data, config, model)
 
         # Unknown game version
