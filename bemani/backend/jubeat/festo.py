@@ -1732,7 +1732,9 @@ class JubeatFesto(
 
         all_music_matching = Node.void("all_music_matching")
         info.add_child(all_music_matching)
-        all_music_matching.add_child(Node.bool("is_available", True))
+        # Disabled: no online matchmaking on this network. Without this, the cab
+        # repeatedly calls lobby/entry which bemaniutils doesn't implement.
+        all_music_matching.add_child(Node.bool("is_available", False))
 
         department = Node.void("department")
         info.add_child(department)
