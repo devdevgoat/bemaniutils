@@ -69,6 +69,15 @@ class JubeatLobbyCheckHandler(JubeatBase):
 
         return root
 
+    def handle_lobby_entry_request(self, request: Node) -> Node:
+        # No-op: we don't run online matchmaking on this network. Returning
+        # an empty success node lets the cab fall through to solo play
+        # instead of retrying the call indefinitely.
+        return Node.void("lobby")
+
+    def handle_lobby_report_request(self, request: Node) -> Node:
+        return Node.void("lobby")
+
 
 class JubeatGamendRegisterHandler(JubeatBase):
     def handle_gameend_regist_request(self, request: Node) -> Node:
