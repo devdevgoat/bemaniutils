@@ -1,0 +1,15 @@
+# Default: let git decide on text vs binary
+* text=auto
+
+# Wrapper scripts have a /usr/bin/env python3 shebang and MUST stay LF
+# even on Windows checkouts, otherwise the Linux container can't exec them.
+services    text eol=lf
+frontend    text eol=lf
+dbutils     text eol=lf
+read        text eol=lf
+scheduler   text eol=lf
+assetparse  text eol=lf
+api         text eol=lf
+proxy       text eol=lf
+bootstrap   text eol=lf
+shell       text eol=lf
