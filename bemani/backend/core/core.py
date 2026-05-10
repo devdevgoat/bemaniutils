@@ -45,7 +45,9 @@ class CoreHandler(Base):
         for srv in self.extra_services:
             root.add_child(item(srv, url))
 
-        root.add_child(item("ntp", "ntp://pool.ntp.org/"))
+        # Point at the local NTP container so cabs without internet access
+        # don't stall on the network test trying to reach pool.ntp.org.
+        root.add_child(item("ntp", f"ntp://{self.config.server.address}/"))
 
         # Translate keepalive to a raw IP because we can't give out a host here
         keepalive = socket.gethostbyname(self.config.server.keepalive)
