@@ -70,13 +70,56 @@ class JubeatLobbyCheckHandler(JubeatBase):
         return root
 
     def handle_lobby_entry_request(self, request: Node) -> Node:
-        # No-op: we don't run online matchmaking on this network. Returning
-        # an empty success node lets the cab fall through to solo play
-        # instead of retrying the call indefinitely.
-        return Node.void("lobby")
+        # There is only one cab on this network, so there is never another
+        # player to find. Tell the cab that it is the master of room 1.
+        # The cab then calls lobby/refresh, and that reply tells it to start.
+        #
+        # The cab needs all four values below. If one is missing, the cab
+        # sends lobby/entry again and the search screen stays for about 22 s.
+        # To go back to the old behavior, return Node.void("lobby") here.
+        root = Node.void("lobby")
+        data = Node.void("data")
+        root.add_child(data)
+
+        roomid = Node.s64("roomid", 1)
+        roomid.set_attribute("master", "1")
+        data.add_child(roomid)
+
+        # Seconds between lobby/refresh calls. 1 is the shortest wait.
+        data.add_child(Node.s16("refresh_intr", 1))
+
+        # Send back the song that the cab selected.
+        music = Node.void("music")
+        data.add_child(music)
+        music.add_child(Node.u32("id", request.child_value("data/music/id") or 0))
+        music.add_child(Node.u8("seq", request.child_value("data/music/seq") or 0))
+
+        return root
+
+    def handle_lobby_refresh_request(self, request: Node) -> Node:
+        # The cab calls this while it waits in a room. "start" = True tells
+        # the cab to stop the search and start the song with the players
+        # that it has (only itself on this network).
+        root = Node.void("lobby")
+        data = Node.void("data")
+        root.add_child(data)
+
+        data.add_child(Node.s16("refresh_intr", 1))
+        data.add_child(Node.bool("start", True))
+
+        return root
 
     def handle_lobby_report_request(self, request: Node) -> Node:
-        return Node.void("lobby")
+        # The cab reports who is in the room. The cab reads "refresh_intr"
+        # from this reply. If it is missing, the cab sends the report 4 times
+        # (about 7 s). To go back, return Node.void("lobby") here.
+        root = Node.void("lobby")
+        data = Node.void("data")
+        root.add_child(data)
+
+        data.add_child(Node.s16("refresh_intr", 1))
+
+        return root
 
 
 class JubeatGamendRegisterHandler(JubeatBase):
